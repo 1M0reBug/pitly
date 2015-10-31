@@ -7,9 +7,11 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var api = require('./routes/api');
+var mongoose = require('mongoose');
 
 var app = express();
 
+mongoose.connect('mongodb://localhost/pitly');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
