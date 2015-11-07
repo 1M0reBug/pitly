@@ -2,7 +2,7 @@ var gulp = require('gulp'),
     mocha = require('gulp-mocha');
 
 gulp.task('tests', function() {
-  return gulp.src('test/api.test.js')
+  return gulp.src('test/*.test.js')
     .pipe(mocha())
     .once('error', function() {
       process.exit(1);

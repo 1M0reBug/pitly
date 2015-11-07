@@ -8,6 +8,10 @@ var UrlSchema = new Schema({
 
 UrlSchema.statics.findAll = function() {
   return this.find({}).exec(); // return Promise
+};
+
+UrlSchema.statics.findByUrl = function(url) {
+  return this.findOne({"url" : url}).exec();
 }
 
 var UrlModel;
