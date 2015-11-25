@@ -19,6 +19,8 @@ describe('Routing', function() {
         mongoose.connection.collections.urls.drop();
     };
 
+    beforeEach(function() {cleanUrlCollection()});
+
     var populateDatabase = function() {
         var url1 = new Url({
             "url" : "http://www.my-brand-new-url.com",
@@ -30,9 +32,10 @@ describe('Routing', function() {
             "shorten" : "15237"
         });
 
-        return url1.save().then(function() {
-            return url2.save();
-        });
+        return url1.save()
+          .then(function(url1) {
+              return url2.save();
+          });
     };
 
 
@@ -55,14 +58,6 @@ describe('Routing', function() {
 
     describe('GET /api/urls', function() {
 
-        beforeEach(function() {
-            cleanUrlCollection();
-        });
-
-        after(function() {
-            cleanUrlCollection();
-        });
-
         it('should display all the added URLs', function(done) {
             populateDatabase().then(function() {
                 request(url)
@@ -77,18 +72,107 @@ describe('Routing', function() {
         });
 
         it('should display the shorten of a given url', function(done) {
-            var toUrl = encodeURI("http://www.another-url.com");
-            populateDatabase().then(function() {
+            var askedURL = "http://www.my-brand-new-url.com";
+            var toUrl = encodeURIComponent(askedURL);
+            populateDatabase().then(function(element) {
                 request(url)
                     .get('/api/urls/' + toUrl)
                     .expect(200)
                     .expect('Content-Type', /json/)
                     .end(function(err, res) {
                         expect(err).to.not.exist;
+                        expect(res.body).to.have.property('url');
                         expect(res.body).to.have.property('shorten');
+                        expect(res.body.url).to.be.equal(askedURL);
                         done();
                     });
             });
         });
     }); // end GET /api/urls
+    describe('GET /urls?url=:url', function(){
+        it('should redirect to /urls/:url using encodeURI URL', function(done) {
+          var askedURL = "http://www.my-brand-new-url.com";
+          populateDatabase().then(function(){
+            request(url)
+              .get('/api/urls?url=' + encodeURIComponent(askedURL))
+              .expect(302)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.header['location']).to.equal('/api/urls/' + encodeURIComponent(askedURL));
+
+                done();
+              });
+
+          });
+        });
+
+        it('should redirect to /urls/:url using clean URL', function(done) {
+          var askedURL = "http://www.my-brand-new-url.com";
+          populateDatabase().then(function(){
+            request(url)
+              .get('/api/urls?url=' + askedURL)
+              .expect(302)
+              .end(function(err, res){
+                expect(res.header['location']).to.equal('/api/urls/' + encodeURIComponent(askedURL));
+                done();
+              });
+
+          });
+        });
+    }); // end GET /urls?url=:url
+
+
+    describe('GET /api/urls?shorten=:shorten', function() {
+      it('should display the expected shortened url', function(done) {
+
+        populateDatabase().then(function(last) {
+          var shorten = last.shorten;
+          request(url)
+            .get('/api/urls?shorten=' + shorten)
+            .expect(302)
+            .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.header['location']).to.equal('/api/shortens/' + shorten);
+                done();
+            });
+        });
+      });
+    });
+
+    describe('POST /api/urls', function() {
+
+        it('should add a new url', function(done) {
+          request(url)
+            .post('/api/urls')
+            .send({url : "http://a-new-url.com"})
+            .expect(200)
+            .expect('Content-Type', /json/)
+            .end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.have.property('url', 'shorten');
+              expect(res.body.url).to.equal('http://a-new-url.com');
+              done();
+            });
+       });
+
+       it('shouldn\'t add twice the same url', function(done) {
+         request(url)
+          .post('/api/urls')
+          .send({url : 'http://a-new-url.com'})
+          .expect(200)
+          .expect('Content-Type', /json/)
+          .end(function(err, res){
+            expect(err).to.not.exist;
+            request(url)
+              .get('/api/urls/' + encodeURIComponent('http://a-new-url.com'))
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .end(function(err2, res2) {
+                expect(err2).to.not.exist;
+                expect(res2.body).to.have.property('url');
+                done();
+              });
+          });
+       });
+    });
 }); // end Pitly
