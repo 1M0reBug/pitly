@@ -13,7 +13,6 @@ router.route('/urls')
         res.redirect('/api/shortens/'+req.query.shorten);
       } else if(req.query.url) {
         if(/\:\/\//.test(req.query.url)) req.query.url = encodeURIComponent(req.query.url);
-        console.log(req.query.url);
         res.redirect('/api/urls/' + req.query.url);
       } else {
           Url.findAll().then(function(urls) {
@@ -26,10 +25,8 @@ router.route('/urls')
     //url.url = req.body.url;
     Url.findByUrl(req.body.url).then(function(found){
       if(found) {
-        console.log(found.url + ' already exists in the db');
         res.json(found);
       } else {
-        console.log('Saving ' + req.body.url);
         url.url = req.body.url;
         url.save(function(err, nUrl) {
           if(err) {

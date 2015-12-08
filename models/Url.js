@@ -11,7 +11,6 @@ var UrlSchema = new Schema({
 UrlSchema.pre('save', function(next) {
   var self = this;
   this.shortenify(null, function(_shorten) {
-    console.log('returned from shortenify with shorten : ' + _shorten);
     self.shorten = _shorten;
     next();
   });

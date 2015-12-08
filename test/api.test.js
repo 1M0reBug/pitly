@@ -178,5 +178,22 @@ describe('Routing', function() {
              });
           });
        });
+    }); // end POST /api/urls
+
+
+    describe('GET /:shorten', function() {
+      it('should redirect to the correct URL', function(done) {
+        populateDatabase().then(function(last) {
+          var givenShorten = last.shorten;
+          request(url)
+            .get('/' + givenShorten)
+            .expect(302)
+            .end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.header.location).to.equal(last.url);
+              done();
+            });
+        });
+      });
     });
 }); // end Pitly
