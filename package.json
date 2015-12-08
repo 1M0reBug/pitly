@@ -21,6 +21,7 @@
     "chai": "^3.4.0",
     "chai-as-promised": "^5.1.0",
     "coveralls": "^2.11.4",
+    "gulp": "^3.9.0",
     "gulp-coveralls": "^0.1.4",
     "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.1.3",
