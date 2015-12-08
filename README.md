@@ -1,6 +1,11 @@
 # pitly
 
-pitly is a project aiming at creating a bit.ly fork using javascript technologies.
+[![Travis](https://img.shields.io/travis/1M0reBug/pitly.svg?style=flat-square)](https://travis-ci.org/1M0reBug/pitly)
+[![Coveralls](https://img.shields.io/coveralls/1M0reBug/pitly.svg?style=flat-square)](https://ccoveralls.io/github/1M0reBug/pitly?branch=master)
+[![David](https://img.shields.io/david/1M0reBug/pitly.svg?style=flat-square)](https://david-dm.org/1M0reBug/pitly)
+[![David](https://img.shields.io/david/dev/1M0reBug/pitly.svg?style=flat-square)](https://david-dm.org/1M0reBug/pitly#info=devDependencies)
+
+pitly is a bit.ly fork using javascript technologies.
 It is firstly an exercise on clean coding (BDD, code coverage, CI) and well formed multi users REST api. There is no commercial purpose behind it.
 Currently, it is mainly a REST api.
 
@@ -16,7 +21,7 @@ You can provide a clear Url as query String. Behavior is to convert url to URIEn
 ### GET /api/urls?shorten=:shorten
 
 Also a shorten as query string. This parameter come prior to `url`.
-Behavior is to redirect to /api/shorens/:shorten.
+Behavior is to redirect to /api/shortens/:shorten.
 
 ## GET /api/urls/:url
 
