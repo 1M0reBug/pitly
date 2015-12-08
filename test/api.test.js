@@ -1,17 +1,21 @@
-var mocha = require('mocha'),
-    sinon = require('sinon'),
-    chai = require('chai'),
-    expect = chai.expect,
-    chaiAsPromised = require('chai-as-promised'),
-    request = require('supertest'),
-    www = require('../bin/www'), // launch the server
-    url = "http://localhost:3000",
-    mongoose = require('mongoose'),
-    Url = require('../models/Url');
+var mocha          = require('mocha'),
+    sinon          = require('sinon'),
+    chai           = require('chai'),
+    expect         = chai.expect,
+    chaiAsPromised = require('chai-as-promised'), // FIXME : is this essential ?
+    request        = require('supertest'),
+    www            = require('../bin/www'), // launch the server
+    url            = "http://localhost:3000",
+    mongoose       = require('mongoose'),
+    Url            = require('../models/Url');
 
+// TODO : using CoffeeScript for the tests using ES6 for the libs ?
 
+// FIXME : ares these libraries essentials ?
 require('sinon-as-promised');
 chai.use(chaiAsPromised);
+
+// TODO : models/Url.js must be tested (no BDD)
 
 
 describe('Routing', function() {
@@ -180,7 +184,7 @@ describe('Routing', function() {
        });
     }); // end POST /api/urls
 
-
+    // FIXME : this test should be on index.test.js
     describe('GET /:shorten', function() {
       it('should redirect to the correct URL', function(done) {
         populateDatabase().then(function(last) {
