@@ -19,7 +19,9 @@ describe('Routing', function() {
         mongoose.connection.collections.urls.drop();
     };
 
-    beforeEach(function() {cleanUrlCollection()});
+    beforeEach(function() {
+      cleanUrlCollection();
+    });
 
     var populateDatabase = function() {
         var url1 = new Url({
@@ -98,7 +100,7 @@ describe('Routing', function() {
               .expect(302)
               .end(function(err, res) {
                 expect(err).to.not.exist;
-                expect(res.header['location']).to.equal('/api/urls/' + encodeURIComponent(askedURL));
+                expect(res.header.location).to.equal('/api/urls/' + encodeURIComponent(askedURL));
 
                 done();
               });
@@ -113,7 +115,7 @@ describe('Routing', function() {
               .get('/api/urls?url=' + askedURL)
               .expect(302)
               .end(function(err, res){
-                expect(res.header['location']).to.equal('/api/urls/' + encodeURIComponent(askedURL));
+                expect(res.header.location).to.equal('/api/urls/' + encodeURIComponent(askedURL));
                 done();
               });
 
@@ -132,7 +134,7 @@ describe('Routing', function() {
             .expect(302)
             .end(function(err, res) {
                 expect(err).to.not.exist;
-                expect(res.header['location']).to.equal('/api/shortens/' + shorten);
+                expect(res.header.location).to.equal('/api/shortens/' + shorten);
                 done();
             });
         });
@@ -149,8 +151,9 @@ describe('Routing', function() {
             .expect('Content-Type', /json/)
             .end(function(err, res) {
               expect(err).to.not.exist;
-              expect(res.body).to.have.property('url', 'shorten');
-              expect(res.body.url).to.equal('http://a-new-url.com');
+              expect(res.body).to.have.property('url', 'http://a-new-url.com');
+              expect(res.body).to.have.property('shorten');
+
               done();
             });
        });
@@ -162,16 +165,17 @@ describe('Routing', function() {
           .expect(200)
           .expect('Content-Type', /json/)
           .end(function(err, res){
-            expect(err).to.not.exist;
+            var id = res.body._id;
             request(url)
-              .get('/api/urls/' + encodeURIComponent('http://a-new-url.com'))
-              .expect(200)
-              .expect('Content-Type', /json/)
-              .end(function(err2, res2) {
-                expect(err2).to.not.exist;
-                expect(res2.body).to.have.property('url');
-                done();
-              });
+             .post('/api/urls')
+             .send({url : 'http://a-new-url.com'})
+             .expect(200)
+             .expect('Content-Type', /json/)
+             .end(function(err, res){
+               expect(res.body).to.have.property('url', 'http://a-new-url.com');
+               expect(res.body).to.have.property('_id', id);
+               done();
+             });
           });
        });
     });
