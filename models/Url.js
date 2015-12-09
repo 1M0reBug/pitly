@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
+var Promise = require('promise');
 
 
 var UrlSchema = new Schema({
@@ -29,8 +30,20 @@ UrlSchema.statics.findByShorten = function(_shorten) {
 };
 
 UrlSchema.methods.shortenify = function(url, cb) {
-  url = url || this.url;
-  cb(crypto.createHash('sha1').update(url).digest('hex').substr(0,5));
+  if('function' == typeof url) {
+    cb = url;
+    url = this.url;
+  } else {
+    url = url || this.url;
+  }
+  var shorten = crypto.createHash('sha1').update(url).digest('hex').substr(0,5);
+  if(cb && 'function' == typeof cb) {
+    cb(shorten);
+  } else {
+    return new Promise(function(resolve, reject) {
+      resolve(shorten);
+    });
+  }
 };
 
 var UrlModel;
