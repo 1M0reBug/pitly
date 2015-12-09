@@ -14,13 +14,18 @@ gulp.task('pre-test', function(){
 gulp.task('tests', ['pre-test'], function() {
   return gulp.src('test/*.test.js')
     .pipe(mocha())
-    .pipe(istanbul.writeReports({dir: 'test/coverage'}))
-    .once('error', function() {
+    .on('error', function() {
       process.exit(1);
-    }) // FIXME : why doesn't it exit when finished ?
-    .once('exit', function() {
+    })
+    .on('exit', function() {
       process.exit();
+    })
+    .on('close', function() {
+      process.exit(); // seems to fix the 'gulp no exiting' issue
+      // using https://github.com/sindresorhus/gulp-mocha/issues/28
+      done();
     });
+    //.pipe(istanbul.writeReports({dir: 'test/coverage'}));
 });
 
 gulp.task('cover', ['tests'], function() {

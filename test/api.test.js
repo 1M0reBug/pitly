@@ -27,6 +27,11 @@ describe('Routing', function() {
       cleanUrlCollection();
     });
 
+    after(function() {
+      cleanUrlCollection();
+      mongoose.connection.close();
+    });
+
     var populateDatabase = function() {
         var url1 = new Url({
             "url" : "http://www.my-brand-new-url.com",
