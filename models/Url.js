@@ -48,6 +48,7 @@ UrlSchema.methods.shortenify = function(url, cb) {
 
 var UrlModel;
 
+
 try{
   UrlModel = mongoose.model('Url', UrlSchema);
 } catch(e) {

@@ -9,13 +9,13 @@ url = 'http://localhost:3000'
 
 describe '/', ->
 
-cleanUrlCollection = ->
-  mongoose.connection.collections.urls.drop()
-  return
+  cleanUrlCollection = ->
+    mongoose.connection.collections.urls.drop()
+    return
 
-populateDatabase = ->
-  url1 = new Url url: "http://www.my-brand-new-url.com"
-  url2 = new Url url: "http://another-url.com"
+  populateDatabase = ->
+    url1 = new Url url: "http://www.my-brand-new-url.com"
+    url2 = new Url url: "http://another-url.com"
 
   url1.save().then ->
     url2.save()
@@ -40,7 +40,5 @@ populateDatabase = ->
           .end (err, res)->
             expect(err).to.not.exist
             expect(res.header.location).to.equal(last.url)
-            done
-          return
-        return
-      return
+            done()
+            return

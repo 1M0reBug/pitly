@@ -1,8 +1,8 @@
 var gulp      = require('gulp'),
     mocha     = require('gulp-mocha'),
-    // TODO: installing istanbul and coveralls
     istanbul  = require('gulp-istanbul'),
-    coveralls = require('gulp-coveralls');
+    coveralls = require('gulp-coveralls'),
+    coffee = require('coffee-script/register');
 
 // TODO : using coffeescript for lighter syntax
 gulp.task('pre-test', function(){
@@ -12,7 +12,7 @@ gulp.task('pre-test', function(){
 });
 
 gulp.task('tests', ['pre-test'], function() {
-  return gulp.src('test/*.test.js')
+  return gulp.src('test/*.test.coffee')
     .pipe(mocha())
     .on('error', function() {
       process.exit(1);

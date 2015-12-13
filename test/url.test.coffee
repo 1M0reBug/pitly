@@ -3,20 +3,25 @@ sinon = require 'sinon'
 chai = require 'chai'
 expect = chai.expect
 mongoose = require 'mongoose'
-Url = require '../models/Url'
+db = mongoose.createConnection();
+Url = require('../models/Url')
 
-# mongoose.connect('mongodb://localhost:27017/pitly')
 
 
 describe 'Url', ->
 
   cleanUrlCollection = ->
-    mongoose.connection.collections.urls.drop()
+    db.collections.urls.drop()
+
+  before ->
+    db.open('mongodb://localhost:27017/pitly')
+    Url = db.model('Url', Url.schema)
+    return
 
   after ->
     cleanUrlCollection()
-    mongoose.connection.close()
-    console.log 'connection closed'
+    db.close ->
+      console.log 'connection closed'
     return
 
   beforeEach ->
