@@ -1,29 +1,34 @@
 mocha = require 'mocha'
 sinon = require 'sinon'
 expect = require('chai').expect
-mongoose = require 'mongoose'
-Url = require '../models/Url'
 request = require 'supertest'
 www = require '../bin/www'
+mongoose = require 'mongoose'
+Url = require '../models/Url'
 url = 'http://localhost:3000'
+db = mongoose.createConnection()
 
 describe '/', ->
 
   cleanUrlCollection = ->
-    mongoose.connection.collections.urls.drop()
-    return
+    db.collections.urls.drop()
 
   populateDatabase = ->
-    url1 = new Url url: "http://www.my-brand-new-url.com"
-    url2 = new Url url: "http://another-url.com"
+    url1 = new Url url: "http://www.my-brand-new-url.com", shorten: "12345"
+    url2 = new Url url: "http://www.another-url.com", shorten: "15625"
 
-  url1.save().then ->
-    url2.save()
+    url1.save().then ->
+      url2.save()
 
+  before ->
+    db.open('mongodb://localhost:27017/pitly')
+    Url = db.model('Url', Url.schema)
+    return
 
   after ->
     cleanUrlCollection()
-    mongoose.connection.close()
+    db.close ->
+      console.log 'connection closed'
     return
 
   beforeEach ->
@@ -42,3 +47,5 @@ describe '/', ->
             expect(res.header.location).to.equal(last.url)
             done()
             return
+        return
+      return

@@ -2,11 +2,10 @@ mocha = require 'mocha'
 sinon = require 'sinon'
 expect = require('chai').expect
 request = require 'supertest'
-www = '../bin/www'
+www = require '../bin/www'
 mongoose = require 'mongoose'
 url = 'http://localhost:3000'
 Url = require '../models/Url'
-
 
 describe 'Routing', ->
   cleanUrlCollection = ->
@@ -25,8 +24,10 @@ describe 'Routing', ->
     return
 
   after ->
+    console.log 'called after hook'
     cleanUrlCollection()
-    mongoose.connection.close()
+    mongoose.connection.close ->
+      'connection closed'
     return
 
   describe 'GET /api/hello', ->
@@ -53,10 +54,11 @@ describe 'Routing', ->
             done()
             return
         return
+      return
 
     it 'should display the shorten of a given url', (done)->
-      askedUrl = "http://my-first-url.com"
-      toUtl = encodeURIComponent(askedUrl)
+      askedUrl = "http://my-second-url.com"
+      toUrl = encodeURIComponent(askedUrl)
       populateDatabase().then (element)->
         request url
           .get "/api/urls/#{toUrl}"
@@ -65,9 +67,12 @@ describe 'Routing', ->
           .end (err, res)->
             expect(err).to.not.exist
             expect(res.body).to.have.property 'url', askedUrl
-            expect(res.body).to.have.property 'shorten'
+            expect(res.body).to.have.property 'shorten', element.shorten
+            expect(res.body).to.have.property '_id', element._id.toString()
             done()
             return
+        return
+      return
 
   describe 'GET /api/urls?url=:url', ->
     it 'should redirect to /api/urls/:url', (done)->
@@ -82,6 +87,8 @@ describe 'Routing', ->
             expect(res.header.location).to.equal "/api/urls/#{toUri}"
             done()
             return
+        return
+      return
 
     it 'should redirect to /api/urls/:url using clean URL', (done)->
       askedURL = 'http://my-first-url.com'
@@ -95,20 +102,23 @@ describe 'Routing', ->
             expect(res.header.location).to.equal("/api/urls/#{toUri}")
             done()
             return
+        return
+      return
 
   describe 'GET /api/shortens/:shorten', ->
     it 'should display the expected url', (done)->
       populateDatabase().then (last)->
         shorten = last.shorten
-        id = last._id
         request url
           .get "/api/shortens/#{shorten}"
           .expect 200
           .expect 'Content-Type', /json/
           .end (err, res)->
-            expect(res.body._id).to.equal
+            expect(res.body._id).to.equal last._id.toString()
             done()
             return
+        return
+      return
 
   describe 'GET /api/urls?shorten=:shorten', ->
     it 'should display the expected shortened url', (done)->
@@ -118,10 +128,12 @@ describe 'Routing', ->
           .get "/api/urls?shorten=#{shorten}"
           .expect(302)
           .end (err, res)->
-            expect(err).to.no.exist
-            expext(res.header.location).to.equal "/api/shotens/#{shorten}"
+            expect(err).to.not.exist
+            expect(res.header.location).to.equal "/api/shortens/#{shorten}"
             done()
             return
+        return
+      return
 
 
   describe 'POST /api/urls', ->
@@ -132,15 +144,17 @@ describe 'Routing', ->
         .expect 200
         .expect 'Content-Type', /json/
         .end (err, res)->
-            expect(err).to.not.exist
-            expect(res.body).to.have.property 'url', 'http://a-new-url.com'
-            expect(res.body).to.have.property 'shorten'
-            done()
-            return
+          expect(err).to.not.exist
+          expect(res.body).to.have.property 'url', 'http://a-new-url.com'
+          expect(res.body).to.have.property 'shorten'
+          expect(res.body).to.have.property '_id'
+          done()
+          return
+      return
 
     it 'shoud not add twice the same url', ->
       request url
-        .post '/api/url'
+        .post '/api/urls'
         .send url: 'http://a-new-url.com'
         .expect 200
         .expect 'Content-Type', /json/
@@ -157,3 +171,7 @@ describe 'Routing', ->
               expect(r.body).to.have.property 'id', id
               done()
               return
+          return
+      return
+    return
+  return
