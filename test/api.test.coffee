@@ -2,15 +2,13 @@ mocha = require 'mocha'
 sinon = require 'sinon'
 expect = require('chai').expect
 request = require 'supertest'
-www = require '../bin/www'
+url = require '../app'
 mongoose = require 'mongoose'
-url = 'http://localhost:3000'
 Url = require '../models/Url'
 
 describe 'Routing', ->
   cleanUrlCollection = ->
     mongoose.connection.collections.urls.drop()
-    return
 
   populateDatabase = ->
     url1 = new Url url: "http://my-first-url.com", shorten: "12345"
@@ -23,12 +21,28 @@ describe 'Routing', ->
     cleanUrlCollection()
     return
 
-  after ->
-    console.log 'called after hook'
-    cleanUrlCollection()
-    mongoose.connection.close ->
-      'connection closed'
+  after (done)->
+    cleanUrlCollection().then ->
+      mongoose.connection.close()
+    .then ->
+      console.log 'connection closed'
+      done()
     return
+
+  describe 'GET /:shorten', ->
+    it 'should redirect to the correct URL', (done)->
+      populateDatabase().then (last)->
+        givenShorten = last.shorten
+        request url
+          .get "/#{givenShorten}"
+          .expect 302
+          .end (err, res)->
+            expect(err).to.not.exist
+            expect(res.header.location).to.equal(last.url)
+            done()
+            return
+        return
+      return
 
   describe 'GET /api/hello', ->
     it 'should display Hello World Message', (done)->
@@ -40,6 +54,7 @@ describe 'Routing', ->
           expect(res.body).to.have.property('hello', 'world !')
           done()
           return
+      return
 
   describe 'GET /api/urls', ->
     it 'should display all the added URLS', (done)->
@@ -152,26 +167,29 @@ describe 'Routing', ->
           return
       return
 
-    it 'shoud not add twice the same url', ->
+    it 'should not add twice the same url', ->
+      askedUrl = 'http://a-new-url.com'
       request url
         .post '/api/urls'
-        .send url: 'http://a-new-url.com'
+        .send url: askedUrl
         .expect 200
         .expect 'Content-Type', /json/
         .end (err, res)->
           id = res.body._id
+          shorten = res.body.shorten
           request url
             .post '/api/urls'
-            .send url: 'http://a-new-url.com'
+            .send url: askedUrl
             .expect 200
             .expect 'Content-Type', /json/
             .end (e, r)->
-              expect(r.body).to.have.property 'url', 'http://a-new-url.com'
-              expect(r.body).to.have.property 'shorten'
-              expect(r.body).to.have.property 'id', id
+              expect(r.body).to.have.property 'url', askedUrl
+              expect(r.body).to.have.property 'shorten', shorten
+              expect(r.body).to.have.property '_id', id
               done()
               return
           return
       return
     return
   return
+return
