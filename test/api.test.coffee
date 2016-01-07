@@ -44,6 +44,18 @@ describe 'Routing', ->
         return
       return
 
+  describe 'GET /api/undefined', ->
+    it 'should return 404 Not Found with stacktrace', (done)->
+      request(url)
+        .get('/api/undefined')
+        .expect 404
+        .end (err, res)->
+          expect(err).to.not.exist
+          expect(/<pre>.+<\/pre>/m.test(res.text.replace(/\n/g, " "))).to.be.true
+          done()
+          return
+      return
+
   describe 'GET /api/hello', ->
     it 'should display Hello World Message', (done)->
       request(url)
@@ -167,7 +179,7 @@ describe 'Routing', ->
           return
       return
 
-    it 'should not add twice the same url', ->
+    it 'should not add twice the same url', (done)->
       askedUrl = 'http://a-new-url.com'
       request url
         .post '/api/urls'

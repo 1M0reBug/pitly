@@ -5,3 +5,7 @@ node_js:
   - "0.10"
 services:
   - mongodb
+
+script: "make ci-travis"
+after_success:
+  - "make submit-lcov"
