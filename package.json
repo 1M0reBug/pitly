@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
+    "pretest" : "npm install -g coffee-script",
     "test": "make ci-travis"
   },
   "dependencies": {
